@@ -319,7 +319,7 @@
   "name": "gtm-demo",
   "description": "",
   "options": {
-    "autorun": false,
+    "autorun": true,
     "concurrencyPolicy": "allow",
     "runOnUpdate": false
   },
