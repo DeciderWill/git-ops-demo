@@ -306,7 +306,118 @@
                       "name": "Production"
                     }
                   ],
-                  "name": "release"
+                  "name": "release",
+                  "preview": {
+                    "kind": "PreviewEnv",
+                    "spec": {
+                      "apiVersion": "v1.2",
+                      "spec": {
+                        "kind": "Workflow",
+                        "spec": {
+                          "type": "sequential",
+                          "steps": [
+                            {
+                              "kind": "BuildSource",
+                              "ref": "build-source-1",
+                              "spec": {
+                                "defaults": {},
+                                "reuseExistingBuilds": true,
+                                "branch": "${refs.node-express.branch}",
+                                "buildOverrides": {
+                                  "buildArguments": {}
+                                },
+                                "id": "${template.refs.builder.id}",
+                                "type": "service",
+                                "sha": "${refs.node-express.sha}"
+                              },
+                              "condition": "success"
+                            },
+                            {
+                              "kind": "DeploymentService",
+                              "spec": {
+                                "deployment": {
+                                  "instances": 1,
+                                  "storage": {
+                                    "ephemeralStorage": {
+                                      "storageSize": 1024
+                                    },
+                                    "shmSize": 64
+                                  },
+                                  "docker": {
+                                    "configType": "default"
+                                  },
+                                  "internal": {
+                                    "id": "${refs.build-source-1.nfObjectId}",
+                                    "branch": "${refs.build-source-1.branch}",
+                                    "buildSHA": "${refs.build-source-1.sha}"
+                                  }
+                                },
+                                "name": "${args.name}-api",
+                                "tags": [
+                                  "${args.previewId}"
+                                ],
+                                "runtimeEnvironment": {},
+                                "runtimeFiles": {},
+                                "billing": {
+                                  "deploymentPlan": "nf-compute-10"
+                                },
+                                "ports": [
+                                  {
+                                    "internalPort": 80,
+                                    "public": true,
+                                    "protocol": "HTTP",
+                                    "name": "p01",
+                                    "domains": [],
+                                    "security": {
+                                      "sso": {},
+                                      "policies": [],
+                                      "credentials": [],
+                                      "verificationMode": "or",
+                                      "securePathConfiguration": {
+                                        "rules": []
+                                      }
+                                    },
+                                    "disableNfDomain": false
+                                  }
+                                ]
+                              },
+                              "ref": "api"
+                            }
+                          ]
+                        }
+                      },
+                      "triggers": [
+                        {
+                          "ref": "node-express",
+                          "vcsService": "github",
+                          "accountLogin": "DeciderWill",
+                          "repoUrl": "https://github.com/DeciderWill/node-express",
+                          "branchRestrictions": [],
+                          "prRestrictions": [
+                            "*"
+                          ],
+                          "pathIgnoreRules": [],
+                          "ciIgnoreFlags": [
+                            "[skip ci]",
+                            "[ci skip]",
+                            "[no ci]",
+                            "[skip nf]",
+                            "[nf skip]",
+                            "[northflank skip]",
+                            "[skip northflank]"
+                          ],
+                          "ciIgnoreFlagsEnabled": true,
+                          "isAllowList": false,
+                          "ignoreDrafts": false
+                        }
+                      ],
+                      "options": {
+                        "concurrencyPolicy": "allow",
+                        "nameFormat": "PR-${args.pullRequestId}",
+                        "schedule": {}
+                      }
+                    }
+                  }
                 },
                 "ref": "release"
               }
