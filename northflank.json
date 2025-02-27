@@ -183,7 +183,7 @@
                   "name": "api-dev",
                   "ports": [
                     {
-                      "internalPort": 3000,
+                      "internalPort": 80,
                       "public": true,
                       "protocol": "HTTP",
                       "name": "p01",
